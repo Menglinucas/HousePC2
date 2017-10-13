@@ -61,6 +61,10 @@ preprocess<-function(district,host,port,user,password,dbname,startmon,endmon,enc
                       and begintime < '",endmon_yr,"-",endmon_mon,"-01 00:00:00","'")
   price <- dbGetQuery(con,str)
   names(price) <- c("code","p","t")
+  if (nrow(price) == 0) {
+    cat("There's no record about house price !!!")
+    return(0)
+  }
   # effective date range, 掐头去尾
   yymm <- paste0(substr(price$t,1,4),substr(price$t,6,7))
   startmon <- min(yymm)
