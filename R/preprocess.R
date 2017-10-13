@@ -159,6 +159,10 @@ preprocess<-function(district,host,port,user,password,dbname,startmon,endmon,enc
   }
   result<-subset(result,ok)
   result<-result[-ncol(result)]
+  if (nrow(result) == 0){
+    cat("There's something wrong with the database, ignore this problem !!!")
+    return(0)
+  }
   row.names(result)<-c(1:nrow(result))
   
   # 填充各月度价格数据（开始报价至今）
