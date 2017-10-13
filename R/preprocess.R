@@ -200,7 +200,7 @@ preprocess<-function(district,host,port,user,password,dbname,startmon,endmon,enc
   if (length(delcol) > 0) {result <- result[-delcol]}
   
   if (ncol(result) < 9){
-    cat("There's no data!!!")
+    cat("Records less than 10 !!!")
     return(0)
   }
   startmon <- colnames(result[8])
