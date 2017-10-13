@@ -63,6 +63,7 @@ preprocess<-function(district,host,port,user,password,dbname,startmon,endmon,enc
   names(price) <- c("code","p","t")
   if (nrow(price) == 0) {
     cat("There's no record about house price !!!")
+    dbDisconnect(con)
     return(0)
   }
   # effective date range, 掐头去尾
