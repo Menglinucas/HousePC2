@@ -173,14 +173,14 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys){
       {
         crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
                        tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
-             filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_tile",tile_i,"_",vars[k],"_",months[j],".tif"),
+             filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif"),
              overwrite=TRUE, datatype="FLT8S")
       }
       # method2
       # src_dataset <- paste0(outpath,"/temp/tmp.tif")
       # for (tile_i in 1:nrow(tiles))
       # {
-      #   dstfile <- paste0(outpath,"/ras_11_newcalprice","/ras_11_tile",tile_i,"_",vars[k],"_",months[j],".tif")
+      #   dstfile <- paste0(outpath,"/ras_11_newcalprice","/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif")
       #   gdalwarp(src_dataset,dstfile,te=c(tiles$st_xmin[tile_i], tiles$st_ymin[tile_i], 
       #                 tiles$st_xmax[tile_i], tiles$st_ymax[tile_i]),overwrite = TRUE)
       # }
