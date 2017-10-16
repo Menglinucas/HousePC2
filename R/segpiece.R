@@ -5,7 +5,7 @@ segpiece<-function(qu){
   
   # source("fortify-spatial.r",encoding = 'UTF-8')
   
-  qu<-fortify(qu)
+  qu<-plyr::ldply(qu@polygons,fortify)
   
   natab<-data.frame("long"=NA,"lat"=NA,"order"=NA,
                     "hole"=NA,"piece"=NA,"id"=NA,"group"=NA)
