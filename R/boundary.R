@@ -48,7 +48,7 @@ boundary<-function(district,host,port,user,password,dbname,enctype){
   ##################### CRS transformation, and convert to dataframe #########################
   ############################################################################################
   projection(city) <- CRS("+init=epsg:4326")
-  city1 <- fortify(city)  ## fortify maybe deprecated. then, can be instituted by broom::tidy
+  city1 <- plyr::ldply(city@polygons,fortify)  ## fortify maybe deprecated. then, can be instituted by broom::tidy
   city <- spTransform(city,newproj)
   city<-segpiece(city)
 
