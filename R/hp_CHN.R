@@ -190,7 +190,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys){
   }
   
   ####### delete the temp files ########
-  unlink("temp",recursive = TRUE)
+  unlink(paste0(outpath,"/temp"),recursive = TRUE)
   
   ####### THE END! #####################
   cat("\nTHE END!")
