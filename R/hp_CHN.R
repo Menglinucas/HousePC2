@@ -30,7 +30,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys){
   ######################################################
   ######## the path and dir saving output files ########
   ######################################################
-  outpath <<- outpath
+  outpath <- outpath
   
   ###########################################################################################
   ############## calculate the months, and create the month,level,minmax dir ################
@@ -100,7 +100,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys){
       cat("There's no server for this city!\n")
       next
     }
-    hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,sys)
+    hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,outpath,sys)
     cat(as.character(Sys.time()),"\tsucced\n")
   }
   
