@@ -196,7 +196,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
           no_cores <- max(1,detectCores()-1)
           cl <- makeCluster(no_cores,type = "FORK")
           registerDoParallel(cl)
-          foreach (tile_i in 1:nrow(tiles)) %dopar% 
+          foreach (tile_i = 1:nrow(tiles)) %dopar% 
           {
             crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
                            tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
