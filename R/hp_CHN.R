@@ -118,7 +118,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
         cat("There's no server for this city!\n")
         next
       }
-      hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,sys)
+      hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,outpath,sys)
       cat(as.character(Sys.time()),"\tsucced\n")
     }
   }
