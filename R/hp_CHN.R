@@ -7,6 +7,7 @@
 #' @param configfile The configuration file, with the path, character
 #' @param outpath The path storing outfiles, character
 #' @param sys The system type, Linux or Wins ?
+#' @param para if do parallel, logical
 #' @details THe outputs mainly contains Magnitude, Link and Year-over-year distibution of the price.
 #' @details Contains six dirs: 
 #' @details (1) ras_11_newcalprice --- altitude
@@ -17,7 +18,7 @@
 #' @details (6) temp --- temperary dir in which files are not necessary, you can neglect it
 #' @return Generate amounts of "tif" files to outpath
 #' @export
-hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys){
+hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
   
   # set local GDAL installation options
   gdal_setInstallation()
@@ -72,36 +73,54 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys){
     cityinfo <- read.table(configfile,header = TRUE, stringsAsFactors = FALSE, fileEncoding = 'UTF-8')
   }
   
-  for (i in 1:nrow(cityinfo))
-  {
-    ######################################################
-    ################ server configuration ################
-    ######################################################
-    # the city's name, pinyinabb  ########################
-    district <- cityinfo$pinyinabb[i] ####################
-    # the city's server host  ############################
-    host <- cityinfo$host[i]  ############################
-    # the city's server port  ############################
-    port <- cityinfo$port[i]  ############################
-    # the city's server user  ############################
-    user <- cityinfo$user[i]  ############################
-    # the city's server password  ########################
-    password <- cityinfo$password[i] #####################
-    # the city's database name  ##########################
-    dbname <- cityinfo$dbname[i]  ########################
-    ######################################################
-    ######################################################
-    ######################################################
-    
-    # calculate each city
-    cat(cityinfo$chinese[i],"(",i,")\t")
-    # the server exist? if not, stop!
-    if (is.na(district) | is.na(host) | is.na(port) | is.na(user) | is.na(password) | is.na(dbname)){
-      cat("There's no server for this city!\n")
-      next
+  if (para){
+    if (sys == "wins"){
+      cat("Error: cannot do parallel in wins !!!")
+      return(0)
+    }else if (sys == "linux"){
+      no_cores <- max(1,detectCores()-1)
+      cl <- makeCluster(no_cores,type = "FORK", outfile = "debug.txt")
+      registerDoParallel(cl)
+      foreach (i=24:nrow(cityinfo)) %dopar% 
+      {
+        hp_city(cityinfo$pinyinabb[i],cityinfo$host[i],cityinfo$port[i],
+                cityinfo$user[i],cityinfo$password[i],cityinfo$dbname[i],
+                startmon,endmon,resol,outpath,sys)
+      }
+      stopCluster(cl)
     }
-    hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,outpath,sys)
-    cat(as.character(Sys.time()),"\tsucced\n")
+  }else{
+    for (i in 1:nrow(cityinfo))
+    {
+      ######################################################
+      ################ server configuration ################
+      ######################################################
+      # the city's name, pinyinabb  ########################
+      district <- cityinfo$pinyinabb[i] ####################
+      # the city's server host  ############################
+      host <- cityinfo$host[i]  ############################
+      # the city's server port  ############################
+      port <- cityinfo$port[i]  ############################
+      # the city's server user  ############################
+      user <- cityinfo$user[i]  ############################
+      # the city's server password  ########################
+      password <- cityinfo$password[i] #####################
+      # the city's database name  ##########################
+      dbname <- cityinfo$dbname[i]  ########################
+      ######################################################
+      ######################################################
+      ######################################################
+      
+      # calculate each city
+      cat(cityinfo$chinese[i],"(",i,")\t")
+      # the server exist? if not, stop!
+      if (is.na(district) | is.na(host) | is.na(port) | is.na(user) | is.na(password) | is.na(dbname)){
+        cat("There's no server for this city!\n")
+        next
+      }
+      hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,sys)
+      cat(as.character(Sys.time()),"\tsucced\n")
+    }
   }
   
   # stop, if no any data
