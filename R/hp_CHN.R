@@ -188,22 +188,40 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
       # crop to tiles(method1=raster; method2=gdalUtils)
       # method1
       r0 <- raster(paste0(outpath,"/temp/tmp.tif"))
-      for (tile_i in 1:nrow(tiles))
-      {
-        crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
-                       tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
-             filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif"),
-             overwrite=TRUE, datatype="FLT8S")
+      if (para){
+        if (sys == "wins"){
+          cat("Error: cannot do parallel in wins !!!")
+          return(0)
+        }else if (sys == "linux"){
+          no_cores <- max(1,detectCores()-1)
+          cl <- makeCluster(no_cores,type = "FORK")
+          registerDoParallel(cl)
+          foreach (tile_i in 1:nrow(tiles)) %dopar% 
+          {
+            crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
+                           tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
+                 filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif"),
+                 overwrite=TRUE, datatype="FLT8S")
+          }
+          stopCluster(cl)
+        }
+      }else{
+        for (tile_i in 1:nrow(tiles))
+        {
+          crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
+                         tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
+               filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif"),
+               overwrite=TRUE, datatype="FLT8S")
+        }
+        # method2
+        # src_dataset <- paste0(outpath,"/temp/tmp.tif")
+        # for (tile_i in 1:nrow(tiles))
+        # {
+        #   dstfile <- paste0(outpath,"/ras_11_newcalprice","/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif")
+        #   gdalwarp(src_dataset,dstfile,te=c(tiles$st_xmin[tile_i], tiles$st_ymin[tile_i], 
+        #                 tiles$st_xmax[tile_i], tiles$st_ymax[tile_i]),overwrite = TRUE)
+        # }
       }
-      # method2
-      # src_dataset <- paste0(outpath,"/temp/tmp.tif")
-      # for (tile_i in 1:nrow(tiles))
-      # {
-      #   dstfile <- paste0(outpath,"/ras_11_newcalprice","/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif")
-      #   gdalwarp(src_dataset,dstfile,te=c(tiles$st_xmin[tile_i], tiles$st_ymin[tile_i], 
-      #                 tiles$st_xmax[tile_i], tiles$st_ymax[tile_i]),overwrite = TRUE)
-      # }
-      
       cat(months[j],"\t")
     }
   }
