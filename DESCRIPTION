@@ -19,7 +19,9 @@ Depends:
     RMySQL,
     rgdal,
     gstat,
-    gdalUtils
+    gdalUtils,
+    foreach,
+    doParallel
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
