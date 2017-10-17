@@ -4,7 +4,7 @@
 \alias{hp_CHN}
 \title{Batches used for House Price calculation of China}
 \usage{
-hp_CHN(startmon, endmon, resol, configfile, outpath, sys)
+hp_CHN(startmon, endmon, resol, configfile, outpath, sys, para)
 }
 \arguments{
 \item{startmon}{The firt month in the form such as "200606", character}
