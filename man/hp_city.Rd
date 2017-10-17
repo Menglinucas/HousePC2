@@ -4,8 +4,8 @@
 \alias{hp_city}
 \title{House Price calculation of each city}
 \usage{
-hp_city(district, host, port, user, password, dbname, startmon, endmon, resol,
-  sys)
+hp_city(district, host, port, user, password, dbname, startmon, endmon, resol, outpath,
+ sys)
 }
 \arguments{
 \item{district}{City name, character}
