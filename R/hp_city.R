@@ -9,11 +9,12 @@
 #' @param startmon The firt month in the form such as "200606", character
 #' @param endmon The last month in the form as param startmon, character
 #' @param resol Mesh resolution, unit: meter, numeric
+#' @param outpath Output path
 #' @param sys The system type, Linux or Wins, defines the encoding type of configure file here, character
 #' @return Magnitude, Link and Year-over-year distibution of House Price; price level; minmax magnitude
 #' @details THe outputs mainly contains Altitude, Link and Year-over-year distibution of the price.
 #' @export
-hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,resol,sys){
+hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,resol,outpath,sys){
   
   ##############################################
   #the used libraries and functions:           #
