@@ -140,7 +140,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   # convert to raster, and write to local files
   output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
   writeRaster(output0,filename=paste0(outpath,"/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[1],".tif"),
-              format='GTiff', datatype="FLT8S", overwrite=TRUE)
+              format='GTiff', NAflag=-9999, overwrite=TRUE)
   
   # calculate level,minmax price
   level[1,] <- c(months[1],mean(krige$p))
@@ -169,12 +169,12 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
       krige <- subset(krige,mark1 & mark2)
       output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
       writeRaster(output1, filename=paste0(outpath,"/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i],".tif"),
-                  format='GTiff', datatype="FLT8S", overwrite=TRUE)
+                  format='GTiff', NAflag=-9999, overwrite=TRUE)
 
       # calculate the link change, output2
       output2 <- (output1-output0)/output1*100.
       writeRaster(output2, filename=paste0(outpath,"/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
-                  format='GTiff', datatype="FLT8S", overwrite=TRUE)
+                  format='GTiff', NAflag=-9999, overwrite=TRUE)
 
       # calculate level, minmax price
       level[i,] <- c(months[i],mean(krige$p))
@@ -185,7 +185,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
         yoy1 <- raster(paste0(outpath,"/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif"))
         output3 <- (output1-yoy1)/yoy1*100
         writeRaster(output3, filename=paste0(outpath,"/ras_11_newlike","/ras_11_",district,"_newlike_",months[1],".tif"),
-                    format='GTiff', datatype="FLT8S", overwrite=TRUE)
+                    format='GTiff', NAflag=-9999, overwrite=TRUE)
       }
 
       cat(months[i],"\t")
