@@ -160,7 +160,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
                         ymn=min(tiles$st_ymin),ymx=max(tiles$st_ymax),ncols=5,nrows=4,
                         crs="+init=epsg:3857",res = c(resol,resol))
   if (!file.exists(paste0(outpath,"/temp/china_tiles.tif"))) {
-    writeRaster(china_tiles,paste0(outpath,"/temp/china_tiles.tif"),format='GTiff', datatype="FLT8S")
+    writeRaster(china_tiles,paste0(outpath,"/temp/china_tiles.tif"),format='GTiff', NAflag=-9999)
   }
   
   # merge all districts in one raster map, every month [, every vars]
@@ -201,7 +201,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
             crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
                            tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
                  filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_tile",tile_i,"_",vars[k],"_",months[j],"01.tif"),
-                 overwrite=TRUE, datatype="FLT8S")
+                 overwrite=TRUE, NAflag=-9999)
           }
           stopCluster(cl)
         }
@@ -211,7 +211,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
           crop(r0,extent(tiles$st_xmin[tile_i],tiles$st_xmax[tile_i],
                          tiles$st_ymin[tile_i],tiles$st_ymax[tile_i]),
                filename=paste0(outpath,"/ras_11_",vars[k],"/ras_11_",tile_i,"_",vars[k],"_",months[j],"01.tif"),
-               overwrite=TRUE, datatype="FLT8S")
+               overwrite=TRUE, NAflag=-9999)
         }
         # method2
         # src_dataset <- paste0(outpath,"/temp/tmp.tif")
