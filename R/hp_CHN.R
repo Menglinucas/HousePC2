@@ -20,6 +20,8 @@
 #' @export
 hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
   
+  # set the raster datatype
+  rasterOptions(datatype = 'FLT4S')
   # set local GDAL installation options
   gdal_setInstallation()
   valid_install <- !is.null(getOption("gdalUtils_gdalPath"))
