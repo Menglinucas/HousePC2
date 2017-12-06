@@ -18,6 +18,8 @@ hp_CHN(startmon, endmon, resol, configfile, outpath, sys, para)
 \item{configfile}{The configuration file, with the path, character}
 
 \item{sys}{The system type, Linux or Wins ?}
+
+\item{para}{if do parallel, logical}
 }
 \value{
 Generate amounts of "tif" files to outpath
