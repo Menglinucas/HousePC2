@@ -188,7 +188,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
       }
       
       # combine, using do.call method
-      mosaic_rasters(c(rs,paste0(outpath,"/temp/china_tiles.tif")),paste0(outpath,"/temp/tmp.tif"),overwrite=TRUE,projwin_srs="+init=epsg:3857")
+      mosaic_rasters(c(rs,paste0(outpath,"/temp/china_tiles.tif")),paste0(outpath,"/temp/tmp.tif"),overwrite=TRUE)
       
       # crop to tiles(method1=raster; method2=gdalUtils)
       # method1
