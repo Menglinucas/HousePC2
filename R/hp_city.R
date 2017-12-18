@@ -123,10 +123,9 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   vgm <- variogram(z~1,myprsp)
   
   # fitting
-  m <- try(fit.variogram(vgm,vgm(model="Sph",
+  m <- tryCatch({fit.variogram(vgm,vgm(model="Sph",
                           psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE),silent=TRUE)
-  if ('try-error' %in% class(m)) {return(0)}
+                          nugget=min(vgm$gamma)),fit.kappa=TRUE)},error=function(e){return(0)})
   
   # kriging interplation
   krige <- krig(myprsp,pr,basexy,m,26)
@@ -159,10 +158,9 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
       pr <- readpr(result,months[i])
       myprsp <- prsp(pr)
       vgm <- variogram(z~1,myprsp)
-      m <- try(fit.variogram(vgm,vgm(model="Sph",
+      m <- tryCatch({fit.variogram(vgm,vgm(model="Sph",
                           psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE),silent=TRUE)
-      if ('try-error' %in% class(m)) {return(0)}
+                          nugget=min(vgm$gamma)),fit.kappa=TRUE)},error=function(e){return(0)})
       krige <- krig(myprsp,pr,basexy,m,26)
       x <- krige$x
       y <- krige$y
