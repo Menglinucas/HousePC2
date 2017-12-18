@@ -126,6 +126,9 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   m <- tryCatch(fit.variogram(vgm,vgm(model="Sph",
                           psill=mean(vgm$gamma),range=max(vgm$dist)/2,
                           nugget=min(vgm$gamma)),fit.kappa=TRUE),error=function(e){return(0)})
+  if (class(m) == "numeric") {
+    if (m == 0) return(0)
+  }
   
   # kriging interplation
   krige <- krig(myprsp,pr,basexy,m,26)
@@ -161,6 +164,9 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
       m <- tryCatch(fit.variogram(vgm,vgm(model="Sph",
                           psill=mean(vgm$gamma),range=max(vgm$dist)/2,
                           nugget=min(vgm$gamma)),fit.kappa=TRUE),error=function(e){return(0)})
+      if (class(m) == "numeric") {
+        if (m == 0) return(0)
+      }
       krige <- krig(myprsp,pr,basexy,m,26)
       x <- krige$x
       y <- krige$y
