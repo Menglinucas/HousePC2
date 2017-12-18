@@ -122,17 +122,11 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   # variogram
   vgm <- variogram(z~1,myprsp)
   
-  # define if the range of variogram is negative
-  if (max(vgm$dist)<=0) 
-  {
-    cat("There's something wrong with the original data records!\n")
-    return(0)
-  }
-  
   # fitting
-  suppressWarnings(m <- fit.variogram(vgm,vgm(model="Sph",
+  m <- try(fit.variogram(vgm,vgm(model="Sph",
                           psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE))
+                          nugget=min(vgm$gamma)),fit.kappa=TRUE),silent=TRUE)
+  if ('try-error' %in% class(m)) {return(0)}
   
   # kriging interplation
   krige <- krig(myprsp,pr,basexy,m,26)
@@ -165,14 +159,10 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
       pr <- readpr(result,months[i])
       myprsp <- prsp(pr)
       vgm <- variogram(z~1,myprsp)
-      if (max(vgm$dist)<=0) 
-      {
-        cat("There's something wrong with the original data records!\n")
-        return(0)
-      }
-      suppressWarnings(m <- fit.variogram(vgm,vgm(model="Sph",
-                              psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                              nugget=min(vgm$gamma)),fit.kappa=TRUE))
+      m <- try(fit.variogram(vgm,vgm(model="Sph",
+                          psill=mean(vgm$gamma),range=max(vgm$dist)/2,
+                          nugget=min(vgm$gamma)),fit.kappa=TRUE),silent=TRUE)
+      if ('try-error' %in% class(m)) {return(0)}
       krige <- krig(myprsp,pr,basexy,m,26)
       x <- krige$x
       y <- krige$y
