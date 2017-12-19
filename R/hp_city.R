@@ -119,19 +119,21 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   # box-cox conversion, and convert to "sp" form
   myprsp <- prsp(pr)
   
-  # variogram
-  vgm <- variogram(z~1,myprsp)
+  iferror <- tryCatch({ # variogram
+                        vgm <- variogram(z~1,myprsp);
+                        
+                        # fitting
+                        m <- fit.variogram(vgm,vgm(model="Sph",psill=mean(vgm$gamma),range=max(vgm$dist)/2,
+                          nugget=min(vgm$gamma)),fit.kappa=TRUE);
+                        
+                        # kriging interplation
+                        krige <- krig(myprsp,pr,basexy,m,26)},
+                      
+                        error=function(e){return("yes")})
   
-  # fitting
-  m <- tryCatch(fit.variogram(vgm,vgm(model="Sph",
-                          psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE),error=function(e){return(0)})
-  if (class(m) == "numeric") {
-    if (m == 0) return(0)
+  if (class(iferror) == "character") {
+    if (iferror == "yes") return(0)
   }
-  
-  # kriging interplation
-  krige <- krig(myprsp,pr,basexy,m,26)
   
   # blank and collect the data
   x <- krige$x
@@ -160,14 +162,23 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
     {
       pr <- readpr(result,months[i])
       myprsp <- prsp(pr)
-      vgm <- variogram(z~1,myprsp)
-      m <- tryCatch(fit.variogram(vgm,vgm(model="Sph",
-                          psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE),error=function(e){return(0)})
-      if (class(m) == "numeric") {
-        if (m == 0) return(0)
+      
+      iferror <- tryCatch({ # variogram
+                        vgm <- variogram(z~1,myprsp);
+                        
+                        # fitting
+                        m <- fit.variogram(vgm,vgm(model="Sph",psill=mean(vgm$gamma),range=max(vgm$dist)/2,
+                          nugget=min(vgm$gamma)),fit.kappa=TRUE);
+                        
+                        # kriging interplation
+                        krige <- krig(myprsp,pr,basexy,m,26)},
+                      
+                        error=function(e){return("yes")})
+  
+      if (class(iferror) == "character") {
+        if (iferror == "yes") return(0)
       }
-      krige <- krig(myprsp,pr,basexy,m,26)
+      
       x <- krige$x
       y <- krige$y
       krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
