@@ -199,7 +199,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
 
       #calculate the year over year change
       if (i>12) {
-        yoy1 <- raster(paste0(outpath,"/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif"))
+        yoy1 <- raster(paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif"))
         output3 <- (output1-yoy1)/yoy1*100
         writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[1],".tif"),
                     format='GTiff', NAflag=-9999, overwrite=TRUE)
