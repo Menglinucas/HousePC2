@@ -74,7 +74,7 @@ boundary<-function(district,host,port,user,password,dbname,enctype){
   allh <- spTransform(allh,newproj)
 
   # 2km buffer
-  housebd <- gBuffer(allh,width=2000.,byid=TRUE)
+  housebd <- gBuffer(allh,width=200.,byid=TRUE)
   housebd <- raster::aggregate(housebd)
   
   # convert to dataframe
