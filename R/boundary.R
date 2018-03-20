@@ -80,7 +80,7 @@ boundary<-function(district,host,port,user,password,dbname,enctype){
   # # convert to dataframe
   # housebd<-segpiece(housebd)
 
-  out<-list(city,housebd)
+  out<-list(city,allh)
   
   return(out)
   
