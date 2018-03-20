@@ -50,7 +50,7 @@ boundary<-function(district,host,port,user,password,dbname,enctype){
   projection(city) <- CRS("+init=epsg:4326")
   city1 <- plyr::ldply(city@polygons,fortify)  ## fortify maybe deprecated. then, can be instituted by broom::tidy
   city <- spTransform(city,newproj)
-  city<-segpiece(city)
+  # city<-segpiece(city)
 
   ##############################################################################################################
   ################################ reliable boundary by ershou and xin house ###################################
@@ -73,12 +73,12 @@ boundary<-function(district,host,port,user,password,dbname,enctype){
   projection(allh) <- CRS("+init=epsg:4326")
   allh <- spTransform(allh,newproj)
 
-  # 2km buffer
-  housebd <- gBuffer(allh,width=200.,byid=TRUE)
-  housebd <- raster::aggregate(housebd)
+  # # 2km buffer
+  # housebd <- gBuffer(allh,width=200.,byid=TRUE)
+  # housebd <- raster::aggregate(housebd)
   
-  # convert to dataframe
-  housebd<-segpiece(housebd)
+  # # convert to dataframe
+  # housebd<-segpiece(housebd)
 
   out<-list(city,housebd)
   
