@@ -86,16 +86,16 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   if (class(bd) == "numeric") {
     if (bd == 0) return(0)
   }
-  bound<-bd[[1]][1:2]
-  housebd<-bd[[2]][1:2]
+  bound<-bd[[1]]
+  housebd<-bd[[2]]
   
   ####################################
   #### calculate the locate range ####
   ####################################
-  xgridmin<-min(na.omit(bound)$long)-0.
-  xgridmax<-max(na.omit(bound)$long)+0.
-  ygridmin<-min(na.omit(bound)$lat)-0.
-  ygridmax<-max(na.omit(bound)$lat)+0.
+  xgridmin<-xmin(bound)-0.
+  xgridmax<-xmax(bound)+0.
+  ygridmin<-ymin(bound)-0.
+  ygridmax<-ymax(bound)+0.
   
   ############################################
   ### set grids, resolution.default = 500m ###
@@ -135,15 +135,18 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
     if (iferror == "yes") return(0)
   }
   
-  # blank and collect the data
-  x <- krige$x
-  y <- krige$y
-  krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
-  krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
-  krige <- subset(krige,mark1 & mark2)
+  # # blank and collect the data
+  # x <- krige$x
+  # y <- krige$y
+  # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
+  # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
+  # krige <- subset(krige,mark1 & mark2)
   
   # convert to raster, and write to local files
-  output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+  # output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+  output0 <- mask(raster(krige),bound)
+  output0 <- mask(output0,housebd)
+  names(output0) <- 'p'
   writeRaster(output0,filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[1],".tif"),
               format='GTiff', NAflag=-9999, overwrite=TRUE)
   
@@ -179,12 +182,15 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
         if (iferror == "yes") return(0)
       }
       
-      x <- krige$x
-      y <- krige$y
-      krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
-      krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
-      krige <- subset(krige,mark1 & mark2)
-      output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+      # x <- krige$x
+      # y <- krige$y
+      # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
+      # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
+      # krige <- subset(krige,mark1 & mark2)
+      # output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+      output1 <- mask(raster(krige),bound)
+      output1 <- mask(output1,housebd)
+      names(output1) <- 'p'
       writeRaster(output1, filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i],".tif"),
                   format='GTiff', NAflag=-9999, overwrite=TRUE)
 
@@ -201,7 +207,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
       if (i>12) {
         yoy1 <- raster(paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif"))
         output3 <- (output1-yoy1)/yoy1*100
-        writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[1],".tif"),
+        writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[i],".tif"),
                     format='GTiff', NAflag=-9999, overwrite=TRUE)
       }
 
