@@ -1,4 +1,4 @@
-
+# this function is not used
 # convert sp to dataframe
 
 segpiece<-function(qu){
