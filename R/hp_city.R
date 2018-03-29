@@ -195,7 +195,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
                   format='GTiff', NAflag=-9999, overwrite=TRUE)
 
       # calculate the link change, output2
-      output2 <- (output1-output0)/output1*100.
+      output2 <- (output1-output0)/output1
       writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
                   format='GTiff', NAflag=-9999, overwrite=TRUE)
 
@@ -206,7 +206,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
       #calculate the year over year change
       if (i>12) {
         yoy1 <- raster(paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif"))
-        output3 <- (output1-yoy1)/yoy1*100
+        output3 <- (output1-yoy1)/yoy1
         writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[i],".tif"),
                     format='GTiff', NAflag=-9999, overwrite=TRUE)
       }
