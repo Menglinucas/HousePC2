@@ -56,6 +56,8 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
     }
   }
   
+  if (!file.exists(paste0(outpath,"/pre-data/"))) {dir.create(paste0(outpath,"/pre-data/"))}
+  if (!file.exists(paste0(outpath,"/pre-data/",endmon))) {dir.create(paste0(outpath,"/pre-data/",endmon))}
   if (!file.exists(paste0(outpath,"/ras_11_newcalprice"))) {dir.create(paste0(outpath,"/ras_11_newcalprice"))}
   if (!file.exists(paste0(outpath,"/ras_11_newlike"))) {dir.create(paste0(outpath,"/ras_11_newlike"))}
   if (!file.exists(paste0(outpath,"/ras_11_newlink"))) {dir.create(paste0(outpath,"/ras_11_newlink"))}
@@ -124,7 +126,7 @@ hp_CHN <- function(startmon,endmon,resol,configfile,outpath,sys,para){
         next
       }
       hp_city(district,host,port,user,password,dbname,startmon,endmon,resol,outpath,sys)
-      cat(as.character(Sys.time()),"\tsucced\n")
+      cat(as.character(Sys.time()),"\tsucced!\n")
     }
   }
   

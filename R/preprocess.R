@@ -192,17 +192,17 @@ preprocess<-function(district,host,port,user,password,dbname,startmon,endmon,enc
     }
   }
   
-  # 剔除样本点小于10的月度数据
-  delcol <- c()
-  j <- 1
-  for (i in 8:(ncol(result)-1))
-  {
-    if(sum(!is.na(result[i])) < 10){
-      delcol[j] <- i
-      j <- j+1
-    }
-  }
-  if (length(delcol) > 0) {result <- result[-delcol]}
+  # # 剔除样本点小于10的月度数据
+  # delcol <- c()
+  # j <- 1
+  # for (i in 8:(ncol(result)-1))
+  # {
+  #   if(sum(!is.na(result[i])) < 10){
+  #     delcol[j] <- i
+  #     j <- j+1
+  #   }
+  # }
+  # if (length(delcol) > 0) {result <- result[-delcol]}
   
   if (ncol(result) < 9){
     cat("Records less than 10 !!!")
@@ -215,10 +215,10 @@ preprocess<-function(district,host,port,user,password,dbname,startmon,endmon,enc
   ################### groupping ######################
   ####################################################
   # year, group.R: 
-    for (i in substr(startmon,1,4):substr(endmon,1,4))
-    {
-      result<-group(result,i)
-    }
+    # for (i in substr(startmon,1,4):substr(endmon,1,4))
+    # {
+    #   result<-group(result,i)
+    # }
   
   return(list(result,startmon,endmon))
 }

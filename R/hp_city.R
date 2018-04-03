@@ -45,9 +45,12 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
     if (result0 == 0) return(0)
   }
   result <- result0[[1]]
+  # save pre-data at the last month
+  write.table(result,paste0(outpath,"/pre-data/",endmon,'/',district,".txt"),
+              row.names = FALSE,sep='\t', fileEncoding = 'utf-8')
   startmon <- result0[[2]]
   endmon <- result0[[3]]
-  
+
   ##############################################################################
   ############################ months to calculate #############################
   ##############################################################################
@@ -114,48 +117,55 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   ##################### calculate the price distribution of the first month #####################
   ###############################################################################################
   # extract data
-  pr <- readpr(result,months[1])
-  
-  # box-cox conversion, and convert to "sp" form
-  myprsp <- prsp(pr)
-  
-  iferror <- tryCatch({ # variogram
-                        vgm <- variogram(z~1,myprsp);
-                        
-                        # fitting
-                        m <- fit.variogram(vgm,vgm(model="Sph",psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE);
-                        
-                        # kriging interplation
-                        krige <- krig(myprsp,pr,basexy,m,26)},
-                      
-                        error=function(e){return("yes")})
-  
-  if (class(iferror) == "character") {
-    if (iferror == "yes") return(0)
+  pr <- tryCatch(readpr(result,months[1]),error=function(e){return("yes")})
+  if (class(pr) == "character") {
+    return(0)  
+  }else{
+    if (nrow(pr) < 20) {
+      return(0) # if the records of one month is less than 20, ignore!
+    }else{
+      # box-cox conversion, and convert to "sp" form
+      myprsp <- prsp(pr)
+      
+      iferror <- tryCatch({ # variogram
+        vgm <- variogram(z~1,myprsp);
+        
+        # fitting
+        m <- fit.variogram(vgm,vgm(model="Sph",psill=mean(vgm$gamma),range=max(vgm$dist)/2,
+                                   nugget=min(vgm$gamma)),fit.kappa=TRUE);
+        
+        # kriging interplation
+        krige <- krig(myprsp,pr,basexy,m,26)},
+        
+        error=function(e){return("yes")})
+      
+      if (class(iferror) == "character") {
+        if (iferror == "yes") return(0)
+      }
+      
+      # # blank and collect the data
+      # x <- krige$x
+      # y <- krige$y
+      # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
+      # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
+      # krige <- subset(krige,mark1 & mark2)
+      
+      # convert to raster, and write to local files
+      # output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+      output0 <- mask(raster(krige),bound)
+      output0 <- mask(output0,housebd)
+      names(output0) <- 'p'
+      writeRaster(output0,filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[1],".tif"),
+                  format='GTiff', NAflag=-9999, overwrite=TRUE)
+      
+      # calculate level,minmax price
+      level[1,] <- c(months[1],mean(output0[],na.rm=TRUE))
+      minmaxp[1,] <- c(months[1],min(output0[],na.rm=TRUE),max(output0[],na.rm=TRUE))
+      
+      cat(months[1],"\t")
+    }
   }
-  
-  # # blank and collect the data
-  # x <- krige$x
-  # y <- krige$y
-  # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
-  # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
-  # krige <- subset(krige,mark1 & mark2)
-  
-  # convert to raster, and write to local files
-  # output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
-  output0 <- mask(raster(krige),bound)
-  output0 <- mask(output0,housebd)
-  names(output0) <- 'p'
-  writeRaster(output0,filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[1],".tif"),
-              format='GTiff', NAflag=-9999, overwrite=TRUE)
-  
-  # calculate level,minmax price
-  level[1,] <- c(months[1],mean(krige$p))
-  minmaxp[1,] <- c(months[1],min(krige$p),max(krige$p))
-  
-  cat(months[1],"\t")
-  
+
   ###############################################################################################
   #### interpolation of the following months, calculate the link and year-over-year change, #####
   #### always with the price level and minmax price #############################################
@@ -163,63 +173,75 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   if (nmonth>1){
     for (i in 2:nmonth)
     {
-      pr <- readpr(result,months[i])
-      myprsp <- prsp(pr)
-      
-      iferror <- tryCatch({ # variogram
-                        vgm <- variogram(z~1,myprsp);
-                        
-                        # fitting
-                        m <- fit.variogram(vgm,vgm(model="Sph",psill=mean(vgm$gamma),range=max(vgm$dist)/2,
-                          nugget=min(vgm$gamma)),fit.kappa=TRUE);
-                        
-                        # kriging interplation
-                        krige <- krig(myprsp,pr,basexy,m,26)},
-                      
-                        error=function(e){return("yes")})
-  
-      if (class(iferror) == "character") {
-        if (iferror == "yes") return(0)
+      pr <- tryCatch(readpr(result,months[i]),error=function(e){return("yes")})
+      if (class(pr) == "character") {
+        return(0)  
+      }else{
+        if (nrow(pr) < 20) {
+          return(0) # if the records of one month is less than 20, ignore!
+        }else{
+          myprsp <- prsp(pr)
+          
+          iferror <- tryCatch({ # variogram
+            vgm <- variogram(z~1,myprsp);
+            
+            # fitting
+            m <- fit.variogram(vgm,vgm(model="Sph",psill=mean(vgm$gamma),range=max(vgm$dist)/2,
+                                       nugget=min(vgm$gamma)),fit.kappa=TRUE);
+            
+            # kriging interplation
+            krige <- krig(myprsp,pr,basexy,m,26)},
+            
+            error=function(e){return("yes")})
+          
+          if (class(iferror) == "character") {
+            if (iferror == "yes") return(0)
+          }
+          
+          # x <- krige$x
+          # y <- krige$y
+          # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
+          # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
+          # krige <- subset(krige,mark1 & mark2)
+          # output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+          output1 <- mask(raster(krige),bound)
+          output1 <- mask(output1,housebd)
+          names(output1) <- 'p'
+          writeRaster(output1, filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i],".tif"),
+                      format='GTiff', NAflag=-9999, overwrite=TRUE)
+          # calculate level, minmax price
+          level[i,] <- c(months[i],mean(output1[],na.rm=TRUE))
+          minmaxp[i,] <- c(months[i],min(output1[],na.rm=TRUE),max(output1[],na.rm=TRUE))
+          
+          # calculate the link change, output2
+          if (exists(output0)){
+            output2 <- (output1-output0)/output0
+            writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
+                        format='GTiff', NAflag=-9999, overwrite=TRUE)
+          }
+          
+          #calculate the year over year change
+          if (i>12) {
+            fname <- paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif")
+            if (file.exists(fname)){
+              yoy1 <- raster(fname)
+              output3 <- (output1-yoy1)/yoy1
+              writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[i],".tif"),
+                          format='GTiff', NAflag=-9999, overwrite=TRUE)
+            }
+          }
+          
+          cat(months[i],"\t")
+          
+          output0 <- output1
+        }
       }
-      
-      # x <- krige$x
-      # y <- krige$y
-      # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
-      # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
-      # krige <- subset(krige,mark1 & mark2)
-      # output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
-      output1 <- mask(raster(krige),bound)
-      output1 <- mask(output1,housebd)
-      names(output1) <- 'p'
-      writeRaster(output1, filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i],".tif"),
-                  format='GTiff', NAflag=-9999, overwrite=TRUE)
-
-      # calculate the link change, output2
-      output2 <- (output1-output0)/output1
-      writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
-                  format='GTiff', NAflag=-9999, overwrite=TRUE)
-
-      # calculate level, minmax price
-      level[i,] <- c(months[i],mean(krige$p))
-      minmaxp[i,] <- c(months[i],min(krige$p),max(krige$p))
-
-      #calculate the year over year change
-      if (i>12) {
-        yoy1 <- raster(paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif"))
-        output3 <- (output1-yoy1)/yoy1
-        writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[i],".tif"),
-                    format='GTiff', NAflag=-9999, overwrite=TRUE)
-      }
-
-      cat(months[i],"\t")
-
-      output0 <- output1
     }
   }
   
   # write level.dat, minmaxp.txt
-  write.table(level,paste0(outpath,"/level/",district,"level.dat"),row.names = FALSE)
-  write.table(minmaxp,paste0(outpath,"/minmaxp/",district,"minmaxp.dat"),row.names = FALSE)
+  write.table(level,paste0(outpath,"/level/",district,"level.dat"),row.names = FALSE,fileEncoding = 'utf-8')
+  write.table(minmaxp,paste0(outpath,"/minmaxp/",district,"minmaxp.dat"),row.names = FALSE,fileEncoding = 'utf-8')
   
   return(0)
   
