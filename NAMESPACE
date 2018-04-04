@@ -2,5 +2,8 @@
 
 export(boundary)
 export(hp_CHN)
+export(hp_CHNPost)
 export(hp_city)
+export(hp_cityPost)
 export(preprocess)
+export(preprocessPost)

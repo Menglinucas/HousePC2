@@ -214,7 +214,7 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
           minmaxp[i,] <- c(months[i],min(output1[],na.rm=TRUE),max(output1[],na.rm=TRUE))
           
           # calculate the link change, output2
-          if (exists(output0)){
+          if (exists('output0')){
             output2 <- (output1-output0)/output0
             writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
                         format='GTiff', NAflag=-9999, overwrite=TRUE)
