@@ -218,7 +218,7 @@ hp_cityPost <- function(district,host,port,user,password,dbname,mon,resol,outpat
       names(output1) <- 'p'
       
       output2 <- (output1-output0)/output0
-      writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",mon,".tif"),
+      writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",mon,".tif"),
                   format='GTiff', NAflag=-9999, overwrite=TRUE)
     }
   }
