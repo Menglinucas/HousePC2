@@ -119,10 +119,10 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
   # extract data
   pr <- tryCatch(readpr(result,months[1]),error=function(e){return("yes")})
   if (class(pr) == "character") {
-    return(0)  
+    cat(months[1],"\t")  # ignore
   }else{
     if (nrow(pr) < 20) {
-      return(0) # if the records of one month is less than 20, ignore!
+      cat(months[1],"\t") # if the records of one month is less than 20, ignore!
     }else{
       # box-cox conversion, and convert to "sp" form
       myprsp <- prsp(pr)
@@ -175,10 +175,10 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
     {
       pr <- tryCatch(readpr(result,months[i]),error=function(e){return("yes")})
       if (class(pr) == "character") {
-        return(0)  
+        cat(months[i],"\t")  # ignore
       }else{
         if (nrow(pr) < 20) {
-          return(0) # if the records of one month is less than 20, ignore!
+          cat(months[i],"\t") # if the records of one month is less than 20, ignore!
         }else{
           myprsp <- prsp(pr)
           
