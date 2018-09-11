@@ -140,29 +140,25 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
         error=function(e){return("yes")})
       
       if (class(iferror) == "character") {
-        if (iferror == "yes") return(0)
+        if (iferror == "yes") cat(months[1],"\t")  # ignore
+      }else{
+        # # blank and collect the data
+        # x <- krige$x
+        # y <- krige$y
+        # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
+        # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
+        # krige <- subset(krige,mark1 & mark2)
+        
+        # convert to raster, and write to local files
+        # output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+        output0 <- mask(raster(krige),bound)
+        output0 <- mask(output0,housebd)
+        names(output0) <- 'p'
+        writeRaster(output0,filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[1],".tif"),
+                    format='GTiff', NAflag=-9999, overwrite=TRUE)
+        
+        cat(months[1],"\t")
       }
-      
-      # # blank and collect the data
-      # x <- krige$x
-      # y <- krige$y
-      # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
-      # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
-      # krige <- subset(krige,mark1 & mark2)
-      
-      # convert to raster, and write to local files
-      # output0 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
-      output0 <- mask(raster(krige),bound)
-      output0 <- mask(output0,housebd)
-      names(output0) <- 'p'
-      writeRaster(output0,filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[1],".tif"),
-                  format='GTiff', NAflag=-9999, overwrite=TRUE)
-      
-      # calculate level,minmax price
-      level[1,] <- c(months[1],mean(output0[],na.rm=TRUE))
-      minmaxp[1,] <- c(months[1],min(output0[],na.rm=TRUE),max(output0[],na.rm=TRUE))
-      
-      cat(months[1],"\t")
     }
   }
 
@@ -195,45 +191,42 @@ hp_city <- function(district,host,port,user,password,dbname,startmon,endmon,reso
             error=function(e){return("yes")})
           
           if (class(iferror) == "character") {
-            if (iferror == "yes") return(0)
-          }
-          
-          # x <- krige$x
-          # y <- krige$y
-          # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
-          # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
-          # krige <- subset(krige,mark1 & mark2)
-          # output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
-          output1 <- mask(raster(krige),bound)
-          output1 <- mask(output1,housebd)
-          names(output1) <- 'p'
-          writeRaster(output1, filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i],".tif"),
-                      format='GTiff', NAflag=-9999, overwrite=TRUE)
-          # calculate level, minmax price
-          level[i,] <- c(months[i],mean(output1[],na.rm=TRUE))
-          minmaxp[i,] <- c(months[i],min(output1[],na.rm=TRUE),max(output1[],na.rm=TRUE))
-          
-          # calculate the link change, output2
-          if (exists('output0')){
-            output2 <- (output1-output0)/output0
-            writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
+            if (iferror == "yes") cat(months[i],"\t")  # ignore
+          }else{
+            # x <- krige$x
+            # y <- krige$y
+            # krige$mark1 <- inSide(list("x"=bound$long,"y"=bound$lat),x,y)
+            # krige$mark2 <- inSide(list("x"=housebd$long,"y"=housebd$lat),x,y)
+            # krige <- subset(krige,mark1 & mark2)
+            # output1 <- rasterFromXYZ(krige[1:3], res = c(resol,resol), crs = "+init=epsg:3857")
+            output1 <- mask(raster(krige),bound)
+            output1 <- mask(output1,housebd)
+            names(output1) <- 'p'
+            writeRaster(output1, filename=paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i],".tif"),
                         format='GTiff', NAflag=-9999, overwrite=TRUE)
-          }
-          
-          #calculate the year over year change
-          if (i>12) {
-            fname <- paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif")
-            if (file.exists(fname)){
-              yoy1 <- raster(fname)
-              output3 <- (output1-yoy1)/yoy1
-              writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[i],".tif"),
+            
+            # calculate the link change, output2
+            if (exists('output0')){
+              output2 <- (output1-output0)/output0
+              writeRaster(output2, filename=paste0(outpath,"/temp/ras_11_newlink","/ras_11_",district,"_newlink_",months[i],".tif"),
                           format='GTiff', NAflag=-9999, overwrite=TRUE)
             }
+            
+            #calculate the year over year change
+            if (i>12) {
+              fname <- paste0(outpath,"/temp/ras_11_newcalprice","/ras_11_",district,"_newcalprice_",months[i-12],".tif")
+              if (file.exists(fname)){
+                yoy1 <- raster(fname)
+                output3 <- (output1-yoy1)/yoy1
+                writeRaster(output3, filename=paste0(outpath,"/temp/ras_11_newlike","/ras_11_",district,"_newlike_",months[i],".tif"),
+                            format='GTiff', NAflag=-9999, overwrite=TRUE)
+              }
+            }
+            
+            cat(months[i],"\t")
+            
+            output0 <- output1
           }
-          
-          cat(months[i],"\t")
-          
-          output0 <- output1
         }
       }
     }
